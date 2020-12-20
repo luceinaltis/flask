@@ -4,9 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px
+        }
+    </style>
 </head>
 <body>
     <h1>Search Results</h1>
-    <h2>{{searchingBy}} 찾는중...</h2>
+    <h2>{{searchingNum}}개의 결과를 찾았습니다.</h2>
+    <h3>검색어 : {{searchingBy}}</h3>
+    <a href="/export?query_job={{searchingBy}}">csv로 저장하기</a>
+    <section>
+        <h4>Title</h4>
+        <h4>Company</h4>
+        <h4>Location</h4>
+        <h4>Link</h4>
+        {% for job in jobs %}
+            <span>{{ job.title }}</span>
+            <span>{{ job.company }}</span>
+            <span>{{ job.location }}</span>
+            <a href="{{job.link}}" target="_blank">지원</a>
+        {% endfor %}
+    </section>
 </body>
 </html>
