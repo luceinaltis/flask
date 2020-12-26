@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, send_file
 from so import get_jobs as so_get_jobs
+from wework import get_jobs as wework_get_jobs
+from remoteok import get_jobs as remoteok_get_jobs
 from exporter import save_to_file
 
 app = Flask("SuperScrapper")
@@ -14,6 +16,7 @@ def home():
 
 @app.route("/report")
 def report():
+    jobs = []
     query_job = request.args.get("query_job")
     if query_job:
         query_job = query_job.lower()
@@ -21,7 +24,9 @@ def report():
             jobs = db.get(query_job)
         else:
             jobs = so_get_jobs(query_job)
-            # 수정
+            jobs += wework_get_jobs(query_job)
+            jobs += remoteok_get_jobs(query_job)
+
             db[query_job] = jobs
 
     else:

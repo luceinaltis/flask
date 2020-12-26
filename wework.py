@@ -2,43 +2,26 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_last_page(url):
-    result = requests.get(url)
-    soup = BeautifulSoup(result.text, "html.parser")
-    pagination = soup.find("div", {"class": "s-pagination"}).find_all("a")
-    last_page = pagination[-2].get_text(strip=True)
-
-    return int(last_page)
-
-
-def extract_job(html):
-    title = html.find("a", {"class": "s-link stretched-link"})["title"]
-    company, location = html.find(
-        "h3", {"class": "fc-black-700 fs-body1 mb4"}).find_all("span", recursive=False)
-    company = company.get_text(strip=True)
-    location = location.get_text(strip=True)
-    job_id = html["data-jobid"]
-    return {'title': title, "company": company, "location": location, "link": f"https://stackoverflow.com/jobs/{job_id}"}
-
-
-def extract_jobs(last_page, url):
-    jobs = []
-    for page in range(last_page):
-        print(f"StackOverflow 긁어오는중 {page} of {last_page}")
-        result = requests.get(f"{url}&pg={page+1}")
-        soup = BeautifulSoup(result.text, "html.parser")
-
-        results = soup.find_all("div", {"class": "-job"})
-        for result in results:
-            job = extract_job(result)
-            jobs.append(job)
-
-    return jobs
-
-
 def get_jobs(word):
-    url = f"https://stackoverflow.com/jobs?r=true"
-    last_page = get_last_page(url)
-    jobs = extract_jobs(last_page, url)
+    url = f"https://weworkremotely.com/remote-jobs/search?utf8=%E2%9C%93&term={word}"
+
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text, "html.parser")
+
+    section = soup.find("section", {"class": "jobs"})
+    article = section.find("article")
+    ul = article.find("ul")
+
+    lists = ul.find_all("li")
+    jobs = []
+
+    for job in lists[:-1]:
+        title = job.find("span", {"class": "title"}).string
+        company = job.find("span", {"class": "company"}).string
+        location = job.find("span", {"class": "region"}).string
+        link = f"https://weworkremotely.com/{job.get('href')}"
+
+        jobs.append({"title": title, "company": company,
+                     "location": location, "link": link})
 
     return jobs
