@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, send_file
-from scraper import get_jobs
+from so import get_jobs as so_get_jobs
 from exporter import save_to_file
 
 app = Flask("SuperScrapper")
@@ -20,7 +20,8 @@ def report():
         if db.get(query_job):
             jobs = db.get(query_job)
         else:
-            jobs = get_jobs(query_job)
+            jobs = so_get_jobs(query_job)
+            # 수정
             db[query_job] = jobs
 
     else:
